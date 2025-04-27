@@ -44,6 +44,7 @@ interface StatesUpdates {
   c: Record<string, EntityDiff>;
 }
 
+// TODO: Transform ws server state upates to client state update model.
 function processEvent(store: Store<HassEntities>, updates: StatesUpdates) {
   const state = { ...store.state };
 
@@ -51,6 +52,8 @@ function processEvent(store: Store<HassEntities>, updates: StatesUpdates) {
     for (const entityId in updates.a) {
       const newState = updates.a[entityId];
       let last_changed = new Date(newState.lc * 1000).toISOString();
+      // Key: EntityId
+      // Value: Transformed entity state object
       state[entityId] = {
         entity_id: entityId,
         state: newState.s,
@@ -127,6 +130,7 @@ function processEvent(store: Store<HassEntities>, updates: StatesUpdates) {
   store.setState(state, true);
 }
 
+// TODO: Send subsctiption message to ws server to subscribe to entities state updates.
 const subscribeUpdates = (conn: Connection, store: Store<HassEntities>) =>
   conn.subscribeMessage<StatesUpdates>((ev) => processEvent(store, ev), {
     type: "subscribe_entities",
@@ -165,6 +169,7 @@ const legacySubscribeUpdates = (conn: Connection, store: Store<HassEntities>) =>
     "state_changed",
   );
 
+// TODO: Specializes getCollection to track all Home Assistant entities (lights, sensors, switches, etc.).
 export const entitiesColl = (conn: Connection) =>
   atLeastHaVersion(conn.haVersion, 2022, 4, 0)
     ? getCollection(conn, "_ent", undefined, subscribeUpdates)
