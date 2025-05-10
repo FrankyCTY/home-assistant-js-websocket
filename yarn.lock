@@ -664,6 +664,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"core-js@npm:^3.41.0":
+  version: 3.41.0
+  resolution: "core-js@npm:3.41.0"
+  checksum: 10/a06ebae2264dd24c8e4b331a68412f7d0730557c41901f80fa910a9398dbef4670482d9ef5a41fef7efd41307c612d3d4051df7640ac4c01ff6feda45f8b92be
+  languageName: node
+  linkType: hard
+
 "cosmiconfig@npm:^7.0.0":
   version: 7.0.1
   resolution: "cosmiconfig@npm:7.0.1"
@@ -1099,6 +1106,7 @@ __metadata:
     "@types/mocha": "npm:^10.0.9"
     assert: "npm:^2.0.0"
     concurrently: "npm:^9.1.2"
+    core-js: "npm:^3.41.0"
     husky: "npm:^4.2.5"
     lint-staged: "npm:^15.0.1"
     mocha: "npm:^11.1.0"

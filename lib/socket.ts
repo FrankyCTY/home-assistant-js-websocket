@@ -25,6 +25,7 @@ export interface HaWebSocket extends WebSocket {
 // TODO: Perform auth phase + Feature enablement phase against hass instance ws endpoint.
 // TODO: See: https://developers.home-assistant.io/docs/api/websocket/#authentication-phase
 export function createSocket(options: ConnectionOptions): Promise<HaWebSocket> {
+  console.log("================= Creating socket ==================");
   // TODO: No auth -> Ask user to provide the hassUrl so that we can retry getAuth().
   if (!options.auth) {
     throw ERR_HASS_HOST_REQUIRED;

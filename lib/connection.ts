@@ -224,6 +224,7 @@ export class Connection {
     this.suspendReconnectPromise = suspendPromise;
   }
 
+  // USERNOTE: From frontend, we suspend the connection when the DOM "freeze" event is triggered.
   suspend() {
     if (!this.suspendReconnectPromise) {
       throw new Error("Suspend promise not set");
@@ -276,6 +277,7 @@ export class Connection {
   }
 
   ping() {
+    console.log("ping----------->!");
     return this.sendMessagePromise(messages.ping());
   }
 
