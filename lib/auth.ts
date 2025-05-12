@@ -51,6 +51,7 @@ type RefreshTokenRequest = {
   refresh_token: string;
 };
 
+// TODO: Example: http://localhost:8123/
 export const genClientId = (): string =>
   `${location.protocol}//${location.host}/`;
 
@@ -110,6 +111,7 @@ async function tokenRequest(
   // Throw an error because it's a pain to debug this.
   // Guard against not working in node.
   const l = typeof location !== "undefined" && location;
+  // TODO: Throw error if the client is running on HTTPS but the target hassURL (auth server) we are targeting is HTTP & not localhost, as browser will block this.
   if (l && l.protocol === "https:") {
     // Ensure that the hassUrl is hosted on https.
     const a = document.createElement("a");
@@ -123,13 +125,16 @@ async function tokenRequest(
   if (clientId !== null) {
     formData.append("client_id", clientId);
   }
+  // TODO: Set up formData from data object for post request.
   Object.keys(data).forEach((key) => {
     // @ts-ignore
     formData.append(key, data[key]);
   });
 
+  // TODO: Send request to auth server (hass instance) to get tokens (access/refresh).
   const resp = await fetch(`${hassUrl}/auth/token`, {
     method: "POST",
+    // TODO: Only include credentials (like cookies) if the request URL is on the same origin as the page that made the request.
     credentials: "same-origin",
     body: formData,
   });
@@ -159,6 +164,8 @@ function encodeOAuthState(state: OAuthState): string {
   return btoa(JSON.stringify(state));
 }
 
+// TODO: base64 decode the encoded string and parse it as JSON.
+// The atob() method of the Window interface decodes a string of data which has been encoded using Base64 encoding.
 function decodeOAuthState(encoded: string): OAuthState {
   return JSON.parse(atob(encoded));
 }
@@ -245,12 +252,15 @@ export async function getAuth(options: getAuthOptions = {}): Promise<Auth> {
   if (hassUrl && hassUrl[hassUrl.length - 1] === "/") {
     hassUrl = hassUrl.substr(0, hassUrl.length - 1);
   }
+  // TODO: Example: Default to http://localhost:8123/
   const clientId =
     options.clientId !== undefined ? options.clientId : genClientId();
+  // TODO: If set to true, allow only authentication credentials for the passed in hassUrl and clientId. Defaults to false.
   const limitHassInstance = options.limitHassInstance === true;
 
   // Use auth code if it was passed in
   if (options.authCode && hassUrl) {
+    // TODO: If auth code is provided, exchange with token against token endpoint.
     data = await fetchToken(hassUrl, clientId, options.authCode);
     if (options.saveTokens) {
       options.saveTokens(data);
@@ -258,14 +268,20 @@ export async function getAuth(options: getAuthOptions = {}): Promise<Auth> {
   }
 
   // Check if we came back from an authorize redirect
+  // TODO: Case 2: Redirected by the auth server to redirect url.
+  // TODO: IF "auth_callback" is in the query params.
+  //  Handle the case where the client generate state e.g. and send request to auth server, then being redirected back to the client with the state.
   if (!data) {
+    // TODO: Parse the query string into an object.
     const query = parseQuery<QueryCallbackData>(location.search.substr(1));
 
-    // Check if we got redirected here from authorize page
+    // TODO: Check if we got redirected here from authorize page
     if ("auth_callback" in query) {
       // Restore state
+      // TODO: base64 decode the encoded state string and parse it as JSON.
       const state = decodeOAuthState(query.state);
 
+      // TODO: If set to true, allow only authentication credentials for the passed in hassUrl and clientId.
       if (
         limitHassInstance &&
         (state.hassUrl !== hassUrl || state.clientId !== clientId)
@@ -281,20 +297,31 @@ export async function getAuth(options: getAuthOptions = {}): Promise<Auth> {
   }
 
   // Check for stored tokens
+  // TODO: Case: Loads tokens from local storage.
   if (!data && options.loadTokens) {
     data = await options.loadTokens();
   }
 
-  // If the token is for another url, ignore it
+  // TODO: Case 3: All good to set up Auth instance.
+  // TODO: - This is likely not initial call to getAuth() as we have auth data (e.g. tokens).
+  // TODO: - AND
+  // TODO:     - No specific hassUrl was passed in.
+  // TODO:     - OR The token is for the same hassUrl.
+  // TODO: Otherwise, the token is for another url, ignore it.
   if (data && (hassUrl === undefined || data.hassUrl === hassUrl)) {
     return new Auth(data, options.saveTokens);
   }
 
+  // TODO: Case 4: No auth data (e.g. tokens) received, and no hassUrl was passed in. Something is wrong, client should pass in a hassUrl to start the getAuth().
+  // TODO: - No tokens then we assumt this is the initial call to getAuth().
+  // TODO: - No hassURL means the getTokens() request is not called correctly with hass host url.
   if (hassUrl === undefined) {
     throw ERR_HASS_HOST_REQUIRED;
   }
 
-  // If no tokens found but a hassUrl was passed in, let's go get some tokens!
+  // TODO: If no tokens found but a hassUrl was passed in, let's go get some tokens!
+  // TODO: - No tokens then we assumt this is the initial call to getAuth().
+  // TODO: - HassURL is provided but likely not matching the hassURL we specify in initial call to getAuth() e.g. (See case 3). Let's redirect to the authorize page to get the right tokens for this hassURL host.
   redirectAuthorize(
     hassUrl,
     clientId,

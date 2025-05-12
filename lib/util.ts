@@ -1,12 +1,15 @@
+// TODO: Parse the query string into an object.
 export function parseQuery<T>(queryString: string) {
   const query: any = {};
   const items = queryString.split("&");
   for (let i = 0; i < items.length; i++) {
     const item = items[i].split("=");
+    // TODO: Key, value of the query parameter.
     const key = decodeURIComponent(item[0]);
     const value = item.length > 1 ? decodeURIComponent(item[1]) : undefined;
     query[key] = value;
   }
+  // TODO: Parsed query paramter object.
   return query as T;
 }
 

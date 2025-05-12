@@ -1,5 +1,7 @@
 import { Error, HassServiceTarget } from "./types.js";
 
+// TODO: Auth message (Authentication phase)
+// See: https://developers.home-assistant.io/docs/api/websocket?_highlight=coalesce#authentication-phase
 export function auth(accessToken: string) {
   return {
     type: "auth",
@@ -7,10 +9,13 @@ export function auth(accessToken: string) {
   };
 }
 
+// TODO: Expected to be sent after auth message (Authentication phase), hince id is 1.
 export function supportedFeatures() {
   return {
     type: "supported_features",
     id: 1, // Always the first message after auth
+    // TODO: 'coalesce_messages' results in messages being sent coalesced in bulk instead of individually.
+    // See: https://developers.home-assistant.io/docs/api/websocket?_highlight=coalesce#feature-enablement-phase
     features: { coalesce_messages: 1 },
   };
 }
