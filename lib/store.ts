@@ -34,8 +34,10 @@ export const createStore = <State>(state?: State): Store<State> => {
     listeners = out;
   }
 
+  // TODO: Overwrite determines if it is a partial update or a full update.
   function setState(update: Partial<State>, overwrite: boolean): void {
     state = overwrite ? (update as State) : { ...state!, ...update };
+    // TODO: Invoke all listeners with the new state.
     let currentListeners = listeners;
     for (let i = 0; i < currentListeners.length; i++) {
       currentListeners[i](state);
@@ -59,6 +61,7 @@ export const createStore = <State>(state?: State): Store<State> => {
      * @param {Function} action	An action of the form `action(state, ...args) -> stateUpdate`
      * @returns {Function} boundAction()
      */
+    // TODO: Invoke action with "this" context, and pass in state + args, then apply the resulting partial state to the store.
     action(action: Action<State>): BoundAction<State> {
       function apply(result: Partial<State>) {
         setState(result, false);
@@ -69,7 +72,9 @@ export const createStore = <State>(state?: State): Store<State> => {
         let args = [state];
         for (let i = 0; i < arguments.length; i++) args.push(arguments[i]);
         // @ts-ignore
+        // TODO: Invoke the action with "this" context, and pass in state + args.
         let ret = action.apply(this, args);
+        // TODO: Once action callback is returned, apply the result (new partial state) to the store.
         if (ret != null) {
           return ret instanceof Promise ? ret.then(apply) : apply(ret);
         }
@@ -77,7 +82,7 @@ export const createStore = <State>(state?: State): Store<State> => {
     },
 
     /**
-     * Apply a partial state object to the current state, invoking registered listeners.
+     * // TODO: Apply a partial state object to the current state, invoking registered listeners about the new state.
      * @param {Object} update				An object with properties to be merged into state
      * @param {Boolean} [overwrite=false]	If `true`, update will replace state instead of being merged into it
      */
@@ -87,6 +92,7 @@ export const createStore = <State>(state?: State): Store<State> => {
       state = undefined;
     },
 
+    // TODO: Subscribe to the store state changes.
     /**
      * Register a listener function to be called whenever state is changed. Returns an `unsubscribe()` function.
      * @param {Function} listener	A function to call when state changes. Gets passed the new state.
